@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "farmhelperv2",
+  "version": "${version}",
+  "name": "FarmHelper V2",
+  "description": "A Hypixel Skyblock farming automation and quality-of-life mod.",
+  "authors": [
+    "JellyLabScripts"
+  ],
+  "contact": {
+    "sources": "https://github.com/JellyLabScripts/FarmHelper"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/farmhelperv2/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.jelly.farmhelperv2.FarmHelper"
+    ],
+    "modmenu": [
+      "com.jelly.farmhelperv2.gui.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "farmhelperv2.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.jelly.farmhelperv2.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MixinClientPlayer",
+    "MixinGameRenderer",
+    "MixinMinecraftClient",
+    "MixinInGameHud",
+    "MixinKeyboard"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
