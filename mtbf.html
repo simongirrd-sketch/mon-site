@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cours MTBF & Fiabilité</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal:   #00C9A7;
+    --cyan:   #00B4D8;
+    --pink:   #FF6B9D;
+    --amber:  #FFB703;
+    --red:    #EF4444;
+    --blue:   #3B82F6;
+    --dark:   #0A0E1A;
+    --card:   #111624;
+    --card2:  #151B2E;
+    --border: rgba(255,255,255,0.07);
+    --text:   #E2E8F0;
+    --muted:  #7A859E;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ─────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    padding: 64px 40px 52px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% -10%, rgba(0,201,167,.3) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 35% at 5%  80%,  rgba(255,107,157,.15) 0%, transparent 60%),
+      radial-gradient(ellipse 35% 35% at 95% 60%,  rgba(59,130,246,.15)  0%, transparent 60%);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(0,201,167,.15);
+    border: 1px solid rgba(0,201,167,.4);
+    color: #5EECD8;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(38px, 7vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    position: relative;
+    margin-bottom: 18px;
+    letter-spacing: -.02em;
+  }
+  .hero h1 .accent { color: var(--teal); }
+  .hero h1 .accent2 { color: var(--pink); }
+  .hero p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 520px;
+    margin: 0 auto 38px;
+    position: relative;
+  }
+  .nav-pills {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    position: relative;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 20px; border-radius: 50px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid transparent;
+    transition: all .2s; text-decoration: none;
+  }
+  .pill:hover { transform: translateY(-2px); filter: brightness(1.15); }
+  .pill.teal   { background:rgba(0,201,167,.12); border-color:rgba(0,201,167,.35); color:#5EECD8; }
+  .pill.cyan   { background:rgba(0,180,216,.12); border-color:rgba(0,180,216,.35); color:#67D9F0; }
+  .pill.pink   { background:rgba(255,107,157,.12); border-color:rgba(255,107,157,.35); color:#FF9DBF; }
+  .pill.amber  { background:rgba(255,183,3,.12); border-color:rgba(255,183,3,.35); color:#FFD055; }
+  .pill.blue   { background:rgba(59,130,246,.12); border-color:rgba(59,130,246,.35); color:#93C5FD; }
+
+  /* ── LAYOUT ───────────────────────────────────────── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 0 24px 100px; }
+  .section-anchor { scroll-margin-top: 24px; }
+
+  /* ── SECTION HEADER ──────────────────────────────── */
+  .sec-head { display:flex; align-items:center; gap:16px; margin:60px 0 28px; }
+  .sec-badge {
+    width:50px; height:50px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; flex-shrink:0;
+  }
+  .sec-badge.teal   { background:rgba(0,201,167,.15); box-shadow:0 0 0 1px rgba(0,201,167,.3); }
+  .sec-badge.cyan   { background:rgba(0,180,216,.15); box-shadow:0 0 0 1px rgba(0,180,216,.3); }
+  .sec-badge.pink   { background:rgba(255,107,157,.15); box-shadow:0 0 0 1px rgba(255,107,157,.3); }
+  .sec-badge.amber  { background:rgba(255,183,3,.15); box-shadow:0 0 0 1px rgba(255,183,3,.3); }
+  .sec-badge.blue   { background:rgba(59,130,246,.15); box-shadow:0 0 0 1px rgba(59,130,246,.3); }
+  .sec-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; }
+  .sec-sub { color:var(--muted); font-size:13px; margin-top:2px; }
+
+  /* ── GRIDS ────────────────────────────────────────── */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media(max-width:800px) { .grid-4{grid-template-columns:1fr 1fr} }
+  @media(max-width:650px) { .grid-2,.grid-3,.grid-4{grid-template-columns:1fr} }
+
+  /* ── CARD ─────────────────────────────────────────── */
+  .card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:20px 22px;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .card:hover { transform:translateY(-3px); box-shadow:0 14px 44px rgba(0,0,0,.45); }
+
+  /* ── FORMULA CARD ─────────────────────────────────── */
+  .fc {
+    background:var(--card); border-radius:16px;
+    overflow:hidden; border:1px solid var(--border);
+    transition:transform .2s, box-shadow .2s;
+  }
+  .fc:hover { transform:translateY(-3px); box-shadow:0 14px 44px rgba(0,0,0,.45); }
+  .fc-head {
+    padding:9px 18px;
+    font-size:11px; font-family:'DM Mono',monospace;
+    letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+  }
+  .fc-body { padding:16px 18px 16px; }
+  .fc-eq {
+    font-family:'DM Mono',monospace; font-size:18px;
+    font-weight:500; line-height:1.5; margin-bottom:10px;
+  }
+  .fc-detail {
+    font-size:12px; color:var(--muted); line-height:1.6;
+    border-top:1px solid var(--border); padding-top:10px;
+  }
+  .fc-detail span { color:var(--text); font-weight:500; }
+
+  .fc-teal  .fc-head { background:rgba(0,201,167,.18); color:#5EECD8; }
+  .fc-teal  .fc-eq   { color:#5EECD8; }
+  .fc-cyan  .fc-head { background:rgba(0,180,216,.18); color:#67D9F0; }
+  .fc-cyan  .fc-eq   { color:#67D9F0; }
+  .fc-pink  .fc-head { background:rgba(255,107,157,.18); color:#FF9DBF; }
+  .fc-pink  .fc-eq   { color:#FF9DBF; }
+  .fc-amber .fc-head { background:rgba(255,183,3,.18); color:#FFD055; }
+  .fc-amber .fc-eq   { color:#FFD055; }
+  .fc-blue  .fc-head { background:rgba(59,130,246,.18); color:#93C5FD; }
+  .fc-blue  .fc-eq   { color:#93C5FD; }
+
+  /* ── KPI CARD ─────────────────────────────────────── */
+  .kpi {
+    background:var(--card2); border:1px solid var(--border);
+    border-radius:16px; padding:20px 18px;
+    text-align:center;
+  }
+  .kpi-icon { font-size:28px; margin-bottom:8px; }
+  .kpi-val {
+    font-family:'DM Mono',monospace; font-size:28px;
+    font-weight:600; line-height:1;
+  }
+  .kpi-label { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.4; }
+  .kpi-sub   { font-size:11px; color:var(--muted); margin-top:4px; font-style:italic; }
+
+  /* ── EXAMPLE CARD ─────────────────────────────────── */
+  .ex-card {
+    background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+    border:1px solid var(--border); border-radius:16px; padding:20px 22px;
+  }
+  .ex-title {
+    font-family:'DM Mono',monospace; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:14px;
+  }
+  .ex-row {
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04); gap:12px;
+  }
+  .ex-row:last-child { border-bottom:none; }
+  .ex-lbl { font-size:13px; color:var(--muted); flex:1; }
+  .ex-val { font-family:'DM Mono',monospace; font-size:14px; font-weight:500; white-space:nowrap; }
+
+  /* ── BAIGNOIRE SVG ─────────────────────────────────── */
+  .bathtub-wrap {
+    background:var(--card2); border:1px solid var(--border);
+    border-radius:20px; padding:28px 24px; margin-bottom:0;
+  }
+  .bathtub-wrap h3 {
+    font-family:'Syne',sans-serif; font-size:18px; font-weight:800;
+    margin-bottom:6px;
+  }
+  .bathtub-wrap p { font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+  /* ── PHASE CARDS ──────────────────────────────────── */
+  .phase-card {
+    border-radius:14px; padding:18px 16px;
+    border:1px solid var(--border);
+  }
+  .phase-num {
+    font-family:'DM Mono',monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:.1em;
+    margin-bottom:8px; font-weight:600;
+  }
+  .phase-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:800; margin-bottom:6px; }
+  .phase-desc { font-size:12.5px; color:var(--muted); line-height:1.5; }
+  .phase-tag {
+    display:inline-block; margin-top:10px;
+    font-size:11px; font-family:'DM Mono',monospace;
+    padding:3px 10px; border-radius:20px;
+  }
+
+  /* ── ALERT ─────────────────────────────────────────── */
+  .alert {
+    border-radius:12px; padding:14px 18px;
+    border-left:3px solid; margin:16px 0;
+    font-size:13.5px; line-height:1.6;
+  }
+  .alert.teal  { background:rgba(0,201,167,.07); border-color:var(--teal); color:#5EECD8; }
+  .alert.amber { background:rgba(255,183,3,.07); border-color:var(--amber); color:#FFD055; }
+  .alert.pink  { background:rgba(255,107,157,.07); border-color:var(--pink); color:#FF9DBF; }
+  .alert.blue  { background:rgba(59,130,246,.07); border-color:var(--blue); color:#93C5FD; }
+  .alert b { font-weight:600; }
+  .alert .mono { font-family:'DM Mono',monospace; }
+
+  /* ── TABLEAU ──────────────────────────────────────── */
+  .styled-table { width:100%; border-collapse:separate; border-spacing:0 6px; }
+  .styled-table th {
+    font-family:'DM Mono',monospace; font-size:11px;
+    text-transform:uppercase; letter-spacing:.1em;
+    color:var(--muted); padding:6px 16px;
+    text-align:center; font-weight:500;
+  }
+  .styled-table th:first-child { text-align:left; }
+  .styled-table td {
+    padding:13px 16px; font-size:14px;
+    text-align:center; background:var(--card);
+  }
+  .styled-table td:first-child { text-align:left; border-radius:10px 0 0 10px; font-weight:500; color:var(--muted); font-size:13px; }
+  .styled-table td:last-child  { border-radius:0 10px 10px 0; }
+  .mono { font-family:'DM Mono',monospace; font-weight:600; }
+
+  /* ── DIVIDER ──────────────────────────────────────── */
+  .divider { height:1px; background:var(--border); margin:44px 0; }
+
+  /* ── RÈGLE D'OR ───────────────────────────────────── */
+  .regle-or {
+    background:linear-gradient(135deg,rgba(0,201,167,.15),rgba(59,130,246,.15));
+    border:1px solid rgba(0,201,167,.3); border-radius:20px;
+    padding:34px 36px; text-align:center; margin-top:44px;
+  }
+  .regle-or .trophy { font-size:42px; margin-bottom:14px; }
+  .regle-or h3 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; margin-bottom:10px; }
+  .regle-or .eq { font-family:'DM Mono',monospace; font-size:20px; color:var(--teal); margin:14px 0 12px; }
+  .regle-or p { color:var(--muted); font-size:14px; line-height:1.7; }
+
+  /* ── ANIMATION ────────────────────────────────────── */
+  .fade-up { opacity:0; transform:translateY(20px); }
+
+  /* ── COLOR HELPERS ────────────────────────────────── */
+  .col-teal  { color:#5EECD8; } .bg-teal  { background:rgba(0,201,167,.12); }
+  .col-cyan  { color:#67D9F0; } .bg-cyan  { background:rgba(0,180,216,.12); }
+  .col-pink  { color:#FF9DBF; } .bg-pink  { background:rgba(255,107,157,.12); }
+  .col-amber { color:#FFD055; } .bg-amber { background:rgba(255,183,3,.12); }
+  .col-blue  { color:#93C5FD; } .bg-blue  { background:rgba(59,130,246,.12); }
+  .col-red   { color:#FCA5A5; } .bg-red   { background:rgba(239,68,68,.12); }
+</style>
+</head>
+<body>
+<div style="position:fixed;top:16px;left:16px;z-index:999">
+  <a href="index.html" style="display:flex;align-items:center;gap:8px;background:rgba(17,22,36,.9);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);color:#7AADFF;text-decoration:none;padding:8px 16px;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s" onmouseover="this.style.background='rgba(46,117,182,.25)'" onmouseout="this.style.background='rgba(17,22,36,.9)'">
+    ← Accueil
+  </a>
+</div>
+
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">📐 Cours · Fiabilité Industrielle</div>
+  <h1><span class="accent">MTBF</span> &amp;<br><span class="accent2">Fiabilité</span></h1>
+  <p>Comprendre la durée de vie des équipements, les lois de défaillance et la courbe en baignoire</p>
+  <div class="nav-pills">
+    <a class="pill teal"  href="#definitions">📏 Définitions</a>
+    <a class="pill pink"  href="#baignoire">🛁 Courbe en baignoire</a>
+    <a class="pill cyan"  href="#formules">📐 Formules</a>
+    <a class="pill amber" href="#lois">📊 Lois de fiabilité</a>
+    <a class="pill blue"  href="#synthese">🏆 Synthèse</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── INTRO : 4 GRANDS INDICATEURS ──────────────────────────── -->
+  <div class="grid-4 fade-up">
+    <div class="kpi" style="border-color:rgba(0,201,167,.25)">
+      <div class="kpi-icon">⏱️</div>
+      <div class="kpi-val col-teal">MTTF</div>
+      <div class="kpi-label">Mean Time To Failure<br>Durée moyenne avant 1ère panne</div>
+      <div class="kpi-sub">Équipements non réparables</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(0,180,216,.25)">
+      <div class="kpi-icon">🔄</div>
+      <div class="kpi-val col-cyan">MTBF</div>
+      <div class="kpi-label">Mean Time Between Failures<br>Durée moyenne entre 2 pannes</div>
+      <div class="kpi-sub">Équipements réparables</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(255,107,157,.25)">
+      <div class="kpi-icon">🔧</div>
+      <div class="kpi-val col-pink">MTTR</div>
+      <div class="kpi-label">Mean Time To Repair<br>Durée moyenne de réparation</div>
+      <div class="kpi-sub">Temps d'intervention</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(255,183,3,.25)">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-val col-amber">Dispo</div>
+      <div class="kpi-label">Disponibilité opérationnelle<br>% de temps en état de marche</div>
+      <div class="kpi-sub">Objectif : proche de 100%</div>
+    </div>
+  </div>
+
+  <div class="alert teal fade-up" style="margin-top:20px">
+    <b>Différence clé :</b> MTTF s'applique aux équipements qu'on <b>ne répare pas</b> (ampoule, fusible…). MTBF s'applique aux machines qu'on <b>répare</b> (moteur, pompe, tour CNC…). Dans l'industrie, on parle presque toujours de <span class="mono">MTBF</span>.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 : DÉFINITIONS ET FORMULES DE BASE -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section-anchor" id="definitions"></div>
+  <div class="sec-head fade-up">
+    <div class="sec-badge teal">📏</div>
+    <div>
+      <div class="sec-title col-teal">1. Définitions & Formules de base</div>
+      <div class="sec-sub">MTBF · MTTR · Disponibilité · Taux de défaillance</div>
+    </div>
+  </div>
+
+  <div class="grid-2 fade-up">
+
+    <div class="fc fc-teal">
+      <div class="fc-head">MTBF — Durée entre 2 pannes</div>
+      <div class="fc-body">
+        <div class="fc-eq">MTBF = Durée totale de fonctionnement<br>───────────────────────────<br>Nombre de pannes</div>
+        <div class="fc-detail">
+          Ou : <span>MTBF = 1 / λ</span><br>
+          <span>λ</span> = taux de défaillance (panne/h)<br><br>
+          Plus le MTBF est <span>grand</span>, plus la machine est <span>fiable</span>.
+        </div>
+      </div>
+    </div>
+
+    <div class="fc fc-pink">
+      <div class="fc-head">MTTR — Durée de réparation</div>
+      <div class="fc-body">
+        <div class="fc-eq">MTTR = Durée totale de réparation<br>────────────────────────────<br>Nombre de pannes</div>
+        <div class="fc-detail">
+          <span>MTTR</span> = durée moyenne d'une intervention corrective<br><br>
+          Plus le MTTR est <span>petit</span>, plus la maintenance est <span>efficace</span>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="grid-2 fade-up" style="margin-top:16px">
+
+    <div class="fc fc-amber">
+      <div class="fc-head">Disponibilité opérationnelle</div>
+      <div class="fc-body">
+        <div class="fc-eq">D = MTBF / (MTBF + MTTR)</div>
+        <div class="fc-detail">
+          Exprimée en % — représente le temps où la machine est <span>opérationnelle</span>.<br><br>
+          Exemple : D = 0,95 → la machine est disponible <span>95% du temps</span>.
+        </div>
+      </div>
+    </div>
+
+    <div class="fc fc-cyan">
+      <div class="fc-head">Taux de défaillance λ</div>
+      <div class="fc-body">
+        <div class="fc-eq">λ = 1 / MTBF</div>
+        <div class="fc-detail">
+          <span>λ</span> = nombre moyen de pannes par heure de fonctionnement<br><br>
+          Lien avec la fiabilité : <span>R(t) = e<sup>−λt</sup></span> (loi exponentielle)
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Exemple chiffré -->
+  <div class="ex-card fade-up" style="margin-top:16px">
+    <div class="ex-title">📌 Exemple chiffré — Tour CNC sur 2 000 h</div>
+    <div class="grid-2">
+      <div>
+        <div class="ex-row"><span class="ex-lbl">Durée totale observée</span><span class="ex-val col-teal">2 000 h</span></div>
+        <div class="ex-row"><span class="ex-lbl">Nombre de pannes</span><span class="ex-val col-teal">8 pannes</span></div>
+        <div class="ex-row"><span class="ex-lbl">Durée totale de réparation</span><span class="ex-val">24 h (8×3h)</span></div>
+        <div class="ex-row"><span class="ex-lbl">Durée de fonctionnement réelle</span><span class="ex-val">1 976 h</span></div>
+      </div>
+      <div>
+        <div class="ex-row"><span class="ex-lbl">MTBF = 1976 / 8</span><span class="ex-val col-cyan">247 h</span></div>
+        <div class="ex-row"><span class="ex-lbl">MTTR = 24 / 8</span><span class="ex-val col-pink">3 h / panne</span></div>
+        <div class="ex-row"><span class="ex-lbl">λ = 1 / 247</span><span class="ex-val col-amber">≈ 0,004 panne/h</span></div>
+        <div class="ex-row"><span class="ex-lbl">Disponibilité = 247 / (247+3)</span><span class="ex-val col-teal">98,8 %</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 : COURBE EN BAIGNOIRE -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section-anchor" id="baignoire"></div>
+  <div class="sec-head fade-up">
+    <div class="sec-badge pink">🛁</div>
+    <div>
+      <div class="sec-title col-pink">2. La Courbe en Baignoire</div>
+      <div class="sec-sub">Les 3 phases de vie d'un équipement industriel</div>
+    </div>
+  </div>
+
+  <!-- SVG Courbe en baignoire -->
+  <div class="bathtub-wrap fade-up">
+    <h3>Évolution du taux de défaillance λ au fil du temps</h3>
+    <p>La courbe ressemble à une baignoire vue de profil — d'où son nom.</p>
+    <svg viewBox="0 0 800 260" style="width:100%;max-width:800px;display:block;margin:0 auto 20px" xmlns="http://www.w3.org/2000/svg">
+      <!-- Grille de fond -->
+      <defs>
+        <linearGradient id="zone1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:0.05"/>
+        </linearGradient>
+        <linearGradient id="zone2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#00C9A7;stop-opacity:0.05"/>
+          <stop offset="100%" style="stop-color:#00C9A7;stop-opacity:0.05"/>
+        </linearGradient>
+        <linearGradient id="zone3" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#FFB703;stop-opacity:0.05"/>
+          <stop offset="100%" style="stop-color:#FFB703;stop-opacity:0.2"/>
+        </linearGradient>
+        <linearGradient id="curveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   style="stop-color:#FF6B9D"/>
+          <stop offset="35%"  style="stop-color:#00C9A7"/>
+          <stop offset="65%"  style="stop-color:#00C9A7"/>
+          <stop offset="100%" style="stop-color:#FFB703"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Zones colorées -->
+      <rect x="40" y="20" width="220" height="200" fill="url(#zone1)" rx="4"/>
+      <rect x="260" y="20" width="280" height="200" fill="url(#zone2)" rx="4"/>
+      <rect x="540" y="20" width="220" height="200" fill="url(#zone3)" rx="4"/>
+
+      <!-- Axes -->
+      <line x1="40" y1="220" x2="770" y2="220" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+      <line x1="40" y1="20"  x2="40"  y2="230" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>
+      <!-- Flèches axes -->
+      <polygon points="770,216 780,220 770,224" fill="rgba(255,255,255,.15)"/>
+      <polygon points="36,20 40,10 44,20" fill="rgba(255,255,255,.15)"/>
+
+      <!-- Labels axes -->
+      <text x="400" y="250" text-anchor="middle" fill="rgba(255,255,255,.35)" font-family="DM Sans" font-size="12">Temps →</text>
+      <text x="18" y="130" text-anchor="middle" fill="rgba(255,255,255,.35)" font-family="DM Sans" font-size="12" transform="rotate(-90,18,130)">λ (taux de défaillance)</text>
+
+      <!-- Courbe en baignoire -->
+      <path d="M 50,60
+               C 70,60 80,65 100,95
+               C 115,115 130,145 160,168
+               C 185,185 200,192 220,196
+               C 245,200 265,200 290,200
+               C 320,200 350,200 380,200
+               C 420,200 450,200 480,200
+               C 510,200 530,200 545,199
+               C 565,196 580,190 600,180
+               C 620,168 640,148 665,120
+               C 685,98 700,72 720,50
+               C 730,40 740,32 750,28"
+            fill="none" stroke="url(#curveGrad)" stroke-width="3.5" stroke-linecap="round"/>
+
+      <!-- Séparateurs de phases -->
+      <line x1="260" y1="20" x2="260" y2="220" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="5,4"/>
+      <line x1="540" y1="20" x2="540" y2="220" stroke="rgba(255,255,255,.12)" stroke-width="1" stroke-dasharray="5,4"/>
+
+      <!-- Labels phases -->
+      <text x="150" y="42" text-anchor="middle" fill="#FF9DBF" font-family="Syne" font-size="13" font-weight="700">JEUNESSE</text>
+      <text x="150" y="56" text-anchor="middle" fill="#FF9DBF" font-family="DM Sans" font-size="10">Mortalité infantile</text>
+
+      <text x="400" y="42" text-anchor="middle" fill="#5EECD8" font-family="Syne" font-size="13" font-weight="700">MATURITÉ</text>
+      <text x="400" y="56" text-anchor="middle" fill="#5EECD8" font-family="DM Sans" font-size="10">Taux constant</text>
+
+      <text x="650" y="42" text-anchor="middle" fill="#FFD055" font-family="Syne" font-size="13" font-weight="700">VIEILLESSE</text>
+      <text x="650" y="56" text-anchor="middle" fill="#FFD055" font-family="DM Sans" font-size="10">Usure, fatigue</text>
+
+      <!-- Annotations sur la courbe -->
+      <circle cx="120" cy="160" r="4" fill="#FF6B9D"/>
+      <text x="88" y="152" fill="#FF9DBF" font-family="DM Sans" font-size="10">λ décroît</text>
+
+      <circle cx="390" cy="200" r="4" fill="#00C9A7"/>
+      <text x="358" y="192" fill="#5EECD8" font-family="DM Sans" font-size="10">λ ≈ constant</text>
+
+      <circle cx="640" cy="132" r="4" fill="#FFB703"/>
+      <text x="608" y="124" fill="#FFD055" font-family="DM Sans" font-size="10">λ croît</text>
+    </svg>
+
+    <!-- 3 phases en cartes -->
+    <div class="grid-3" style="margin-top:4px">
+      <div class="phase-card" style="border-color:rgba(255,107,157,.25)">
+        <div class="phase-num col-pink">Phase I</div>
+        <div class="phase-name col-pink">Mortalité infantile</div>
+        <div class="phase-desc">Défauts de fabrication, mauvais montage, rodage. λ élevé puis décroît rapidement.</div>
+        <div class="phase-tag bg-pink col-pink">Burn-in · Rodage</div>
+      </div>
+      <div class="phase-card" style="border-color:rgba(0,201,167,.25)">
+        <div class="phase-num col-teal">Phase II</div>
+        <div class="phase-name col-teal">Maturité (vie utile)</div>
+        <div class="phase-desc">Taux de défaillance constant. Pannes aléatoires, imprévisibles. C'est ici que s'applique la loi exponentielle.</div>
+        <div class="phase-tag bg-teal col-teal">λ constant → Loi exp.</div>
+      </div>
+      <div class="phase-card" style="border-color:rgba(255,183,3,.25)">
+        <div class="phase-num col-amber">Phase III</div>
+        <div class="phase-name col-amber">Vieillissement</div>
+        <div class="phase-desc">Usure, fatigue, corrosion. λ augmente. C'est le moment de planifier le remplacement.</div>
+        <div class="phase-tag bg-amber col-amber">Wear-out · Remplacement</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert amber fade-up" style="margin-top:16px">
+    <b>Pourquoi c'est important ?</b> La stratégie de maintenance dépend de la phase de vie :<br>
+    – <b>Phase I :</b> Contrôle qualité, rodage soigné<br>
+    – <b>Phase II :</b> Maintenance préventive systématique (périodicité fixe)<br>
+    – <b>Phase III :</b> Remplacement préventif avant panne
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 : FIABILITÉ ET FORMULES -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section-anchor" id="formules"></div>
+  <div class="sec-head fade-up">
+    <div class="sec-badge cyan">📐</div>
+    <div>
+      <div class="sec-title col-cyan">3. Fiabilité R(t) — Les Formules Clés</div>
+      <div class="sec-sub">Probabilité qu'un équipement fonctionne sans panne jusqu'à l'instant t</div>
+    </div>
+  </div>
+
+  <div class="alert blue fade-up">
+    <b>Définition :</b> La <b>fiabilité R(t)</b> est la probabilité qu'un équipement fonctionne sans défaillance pendant une durée t, dans des conditions données.<br>
+    <span class="mono">R(t) = 1 signifie 100% de chances de ne pas tomber en panne → impossible en pratique</span>
+  </div>
+
+  <div class="grid-3 fade-up" style="margin-top:16px">
+
+    <div class="fc fc-cyan">
+      <div class="fc-head">Fiabilité (loi exponentielle)</div>
+      <div class="fc-body">
+        <div class="fc-eq">R(t) = e<sup>−λt</sup></div>
+        <div class="fc-detail">
+          Valable en <span>phase II</span> (λ constant)<br>
+          <span>t</span> = durée de fonctionnement (h)<br>
+          <span>e</span> ≈ 2,718 (constante)<br><br>
+          R(t) ∈ [0 ; 1] — Diminue avec le temps
+        </div>
+      </div>
+    </div>
+
+    <div class="fc fc-cyan">
+      <div class="fc-head">Probabilité de défaillance F(t)</div>
+      <div class="fc-body">
+        <div class="fc-eq">F(t) = 1 − R(t)<br>F(t) = 1 − e<sup>−λt</sup></div>
+        <div class="fc-detail">
+          Probabilité qu'une panne soit survenue avant t.<br><br>
+          <span>R(t) + F(t) = 1</span> toujours
+        </div>
+      </div>
+    </div>
+
+    <div class="fc fc-cyan">
+      <div class="fc-head">Fiabilité à t = MTBF</div>
+      <div class="fc-body">
+        <div class="fc-eq">R(MTBF) = e<sup>−1</sup> ≈ 0,368</div>
+        <div class="fc-detail">
+          À t = MTBF, la fiabilité n'est que de <span>36,8%</span> !<br><br>
+          ⚠️ Le MTBF n'est pas la durée pendant laquelle la machine ne tombera <span>certainement pas</span> en panne.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Exemple fiabilité -->
+  <div class="ex-card fade-up" style="margin-top:16px">
+    <div class="ex-title">📌 Exemple — Calculer la fiabilité sur une durée donnée</div>
+    <div class="grid-2">
+      <div>
+        <div class="ex-row"><span class="ex-lbl">MTBF machine = 247 h → λ = 1/247</span><span class="ex-val col-cyan">0,00405 panne/h</span></div>
+        <div class="ex-row"><span class="ex-lbl">R(100h) = e<sup>−0,00405×100</sup> = e<sup>−0,405</sup></span><span class="ex-val col-cyan">≈ 66,7%</span></div>
+        <div class="ex-row"><span class="ex-lbl">R(247h) = e<sup>−1</sup></span><span class="ex-val col-cyan">≈ 36,8%</span></div>
+        <div class="ex-row"><span class="ex-lbl">R(500h) = e<sup>−0,00405×500</sup></span><span class="ex-val col-cyan">≈ 13,3%</span></div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:8px;justify-content:center">
+        <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em">Interprétation</div>
+        <div style="font-size:13px;line-height:1.6">
+          Après <b class="col-cyan">100 h</b>, la machine a encore <b class="col-cyan">67%</b> de chances de fonctionner.<br><br>
+          Au bout du <b class="col-cyan">MTBF (247 h)</b>, elle n'a plus que <b class="col-pink">37%</b> de chances de ne pas avoir eu de panne !<br><br>
+          <span style="color:var(--muted);font-size:12px">→ C'est pourquoi on planifie la maintenance <b>avant</b> le MTBF.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 : LOIS DE FIABILITÉ -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section-anchor" id="lois"></div>
+  <div class="sec-head fade-up">
+    <div class="sec-badge amber">📊</div>
+    <div>
+      <div class="sec-title col-amber">4. Les Lois de Fiabilité</div>
+      <div class="sec-sub">Exponentielle · Weibull · Normale — selon la phase de vie</div>
+    </div>
+  </div>
+
+  <div class="grid-3 fade-up">
+
+    <div class="card" style="border-color:rgba(0,201,167,.25)">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#5EECD8;margin-bottom:12px">Loi Exponentielle</div>
+      <div style="font-family:'DM Mono',monospace;font-size:18px;color:#5EECD8;margin-bottom:12px">R(t) = e<sup>−λt</sup></div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">
+        Utilisée en <b style="color:var(--text)">Phase II</b> (maturité).<br>
+        λ = constante. Pannes purement aléatoires.<br>
+        <b style="color:var(--text)">1 seul paramètre</b> : λ
+      </div>
+      <div style="margin-top:12px;font-size:12px;background:rgba(0,201,167,.08);border-radius:8px;padding:8px 12px;color:#5EECD8">
+        ✓ Simple · La plus utilisée en cours
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,183,3,.25)">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#FFD055;margin-bottom:12px">Loi de Weibull</div>
+      <div style="font-family:'DM Mono',monospace;font-size:17px;color:#FFD055;margin-bottom:12px">R(t) = e<sup>−(t/η)<sup>β</sup></sup></div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">
+        Universelle — couvre les <b style="color:var(--text)">3 phases</b> selon β.<br>
+        <b style="color:var(--text)">β &lt; 1</b> : jeunesse (λ décroît)<br>
+        <b style="color:var(--text)">β = 1</b> : maturité (loi exp.)<br>
+        <b style="color:var(--text)">β &gt; 1</b> : vieillissement (λ croît)
+      </div>
+      <div style="margin-top:12px;font-size:12px;background:rgba(255,183,3,.08);border-radius:8px;padding:8px 12px;color:#FFD055">
+        ✓ La plus puissante et complète
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(255,107,157,.25)">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#FF9DBF;margin-bottom:12px">Loi Normale</div>
+      <div style="font-family:'DM Mono',monospace;font-size:18px;color:#FF9DBF;margin-bottom:12px">R(t) = 1 − Φ((t−μ)/σ)</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">
+        Utilisée pour l'<b style="color:var(--text)">usure progressive</b>.<br>
+        <b style="color:var(--text)">μ</b> = durée de vie moyenne<br>
+        <b style="color:var(--text)">σ</b> = écart-type (dispersion)
+      </div>
+      <div style="margin-top:12px;font-size:12px;background:rgba(255,107,157,.08);border-radius:8px;padding:8px 12px;color:#FF9DBF">
+        ✓ Phase III · Pièces mécaniques
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Paramètre β de Weibull - focus visuel -->
+  <div class="card fade-up" style="margin-top:16px;border-color:rgba(255,183,3,.25)">
+    <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#FFD055;margin-bottom:16px">Focus · Paramètre β (bêta) de Weibull — Le plus important !</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="background:rgba(255,107,157,.08);border:1px solid rgba(255,107,157,.25);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:22px;color:#FF9DBF;margin-bottom:8px">β &lt; 1</div>
+        <div style="font-weight:600;margin-bottom:6px">Mortalité infantile</div>
+        <div style="font-size:12px;color:var(--muted)">Le taux λ décroît avec le temps. Les défauts s'éliminent au rodage.</div>
+      </div>
+      <div style="background:rgba(0,201,167,.08);border:1px solid rgba(0,201,167,.25);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:22px;color:#5EECD8;margin-bottom:8px">β = 1</div>
+        <div style="font-weight:600;margin-bottom:6px">Vie utile / Maturité</div>
+        <div style="font-size:12px;color:var(--muted)">Weibull = Exponentielle. Pannes aléatoires, λ constant.</div>
+      </div>
+      <div style="background:rgba(255,183,3,.08);border:1px solid rgba(255,183,3,.25);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:22px;color:#FFD055;margin-bottom:8px">β &gt; 1</div>
+        <div style="font-weight:600;margin-bottom:6px">Vieillissement</div>
+        <div style="font-size:12px;color:var(--muted)">Le taux λ augmente. Usure progressive, remplacement à planifier.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 : SYNTHÈSE -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="section-anchor" id="synthese"></div>
+  <div class="sec-head fade-up">
+    <div class="sec-badge blue">🏆</div>
+    <div>
+      <div class="sec-title col-blue">5. Synthèse — Tout en un coup d'œil</div>
+      <div class="sec-sub">Formules · Relations · Décisions</div>
+    </div>
+  </div>
+
+  <!-- Tableau récap des formules -->
+  <div class="fade-up">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Indicateur</th>
+          <th>Formule</th>
+          <th>Unité</th>
+          <th>Interprétation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MTBF</td>
+          <td><span class="mono col-teal">Durée fonct. / Nb pannes</span></td>
+          <td>h</td>
+          <td>Plus grand = plus fiable</td>
+        </tr>
+        <tr>
+          <td>MTTR</td>
+          <td><span class="mono col-pink">Durée répar. / Nb pannes</span></td>
+          <td>h</td>
+          <td>Plus petit = maintenance efficace</td>
+        </tr>
+        <tr>
+          <td>λ</td>
+          <td><span class="mono col-amber">1 / MTBF</span></td>
+          <td>panne/h</td>
+          <td>Plus petit = moins de pannes</td>
+        </tr>
+        <tr>
+          <td>Disponibilité D</td>
+          <td><span class="mono col-cyan">MTBF / (MTBF + MTTR)</span></td>
+          <td>%</td>
+          <td>Objectif : le plus proche de 1</td>
+        </tr>
+        <tr>
+          <td>Fiabilité R(t)</td>
+          <td><span class="mono col-cyan">e<sup>−λt</sup></span></td>
+          <td>[0;1]</td>
+          <td>Proba de fonctionner jusqu'à t</td>
+        </tr>
+        <tr>
+          <td>Défaillance F(t)</td>
+          <td><span class="mono col-pink">1 − R(t)</span></td>
+          <td>[0;1]</td>
+          <td>Proba d'avoir eu une panne avant t</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Lien avec le cours maintenance -->
+  <div class="card fade-up" style="margin-top:24px;border-color:rgba(0,201,167,.3)">
+    <div style="font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#5EECD8;margin-bottom:14px">🔗 Lien avec le cours sur les coûts de maintenance</div>
+    <div class="grid-2" style="gap:16px">
+      <div style="font-size:13.5px;line-height:1.8;color:var(--muted)">
+        Le <b style="color:var(--text)">taux de défaillance λ</b> utilisé dans les formules Cdmc, Cdmp est directement issu du MTBF :<br>
+        <span style="font-family:'DM Mono',monospace;color:#5EECD8;font-size:15px;display:block;margin:8px 0">λ = 1 / MTBF</span>
+        Plus le MTBF est élevé (machine fiable), plus λ est faible, et plus le <b style="color:var(--text)">Cdmc diminue</b>.
+      </div>
+      <div>
+        <div class="ex-row"><span class="ex-lbl">MTBF = 247 h</span><span class="ex-val col-teal">λ = 0,004</span></div>
+        <div class="ex-row"><span class="ex-lbl">Nd = λ × T = 0,004 × 2000</span><span class="ex-val col-teal">8 pannes</span></div>
+        <div class="ex-row"><span class="ex-lbl">Améliorer le MTBF (ex: ×2 → 494 h)</span><span class="ex-val col-teal">λ = 0,002</span></div>
+        <div class="ex-row"><span class="ex-lbl">→ Nd divisé par 2</span><span class="ex-val col-teal">4 pannes</span></div>
+        <div class="ex-row"><span class="ex-lbl">→ Cdmc divisé par 2</span><span class="ex-val col-teal">2 336 € !</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Règle d'or -->
+  <div class="regle-or fade-up">
+    <div class="trophy">🛁</div>
+    <h3>À retenir absolument</h3>
+    <div class="eq">λ = 1/MTBF · R(t) = e<sup>−λt</sup> · D = MTBF/(MTBF+MTTR)</div>
+    <p>
+      <b style="color:var(--text)">Augmenter le MTBF</b> = réduire λ = moins de pannes = moins de coûts.<br>
+      <b style="color:var(--text)">Réduire le MTTR</b> = réparer plus vite = meilleure disponibilité.<br><br>
+      <span style="color:var(--muted)">En Phase II (vie utile) : loi exponentielle. En phase III : planifier le remplacement avant R(t) &lt; seuil acceptable.</span>
+    </p>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.transition = 'opacity .55s ease, transform .55s ease';
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.fade-up').forEach((el, i) => {
+  el.style.transitionDelay = (i % 4) * 0.06 + 's';
+  observer.observe(el);
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
