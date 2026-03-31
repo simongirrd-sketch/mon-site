@@ -157,8 +157,8 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
           </div>
           <div class="fichier-liste">
             <a class="fichier-item" href="couts.html">
-              <div class="fichier-icon">📄</div>
-              <div class="fichier-title">Cours — Coûts de maintenance</div>
+              <div class="fichier-icon">💻</div>
+              <div class="fichier-title">Cours — Coûts de maintenance <span style="font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(0,201,167,.2);color:#5EECD8;font-family:'DM Mono',monospace;margin-left:8px;">INTERACTIF</span></div>
               <div class="fichier-arrow">→</div>
             </a>
             <a class="fichier-item" href="les_cout_de_la_maintenance.pdf" target="_blank">
@@ -311,6 +311,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
     wrap.classList.toggle('open');
   }
 
+  document.getElementById('card-orga').classList.add('open');
 </script>
 </body>
 </html>
