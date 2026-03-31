@@ -42,6 +42,26 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
 .cours-arrow { font-size: 16px; color: var(--muted); transition: transform .2s; }
 .cours-item:hover:not(.soon) .cours-arrow { transform: translateX(4px); color: var(--text); }
 .badge-soon { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(122,133,158,.15); color: var(--muted); }
+
+/* ── DOSSIERS (niveau 2) ── */
+.dossier-wrap { border-bottom: 1px solid var(--border); }
+.dossier-wrap:last-child { border-bottom: none; }
+.dossier-head { display: flex; align-items: center; gap: 16px; padding: 16px 28px; cursor: pointer; user-select: none; transition: background .2s; }
+.dossier-head:hover { background: rgba(255,255,255,.04); }
+.dossier-icon { font-size: 18px; width: 32px; text-align: center; flex-shrink: 0; }
+.dossier-label { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+.dossier-chevron { font-size: 14px; color: var(--muted); transition: transform .3s; }
+.dossier-wrap.open .dossier-chevron { transform: rotate(90deg); }
+
+/* ── FICHIERS (niveau 3) ── */
+.fichier-liste { display: none; background: rgba(0,0,0,.15); }
+.dossier-wrap.open .fichier-liste { display: block; }
+.fichier-item { display: flex; align-items: center; gap: 14px; padding: 13px 28px 13px 52px; text-decoration: none; color: var(--text); border-top: 1px solid var(--border); transition: background .2s; }
+.fichier-item:hover { background: rgba(255,255,255,.05); }
+.fichier-icon { font-size: 15px; flex-shrink: 0; }
+.fichier-title { flex: 1; font-size: 14px; font-weight: 500; }
+.fichier-arrow { font-size: 13px; color: var(--muted); transition: transform .2s; }
+.fichier-item:hover .fichier-arrow { transform: translateX(4px); color: var(--text); }
 .stats { display: flex; gap: 14px; justify-content: center; margin-top: 48px; flex-wrap: wrap; }
 .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; text-align: center; }
 .stat-val { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--teal); }
@@ -59,7 +79,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-tag">📚 BTS · Maintenance Industrielle</div>
+    <div class="hero-tag">📚 BTS / Licence Pro · Maintenance Industrielle</div>
     <h1>Mes <span class="g1">Cours</span><br><span class="g2">Industriels</span></h1>
     <p>Sélectionne une matière pour accéder aux cours disponibles</p>
   </div>
@@ -70,6 +90,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
       <div class="matiere-icon" style="background:rgba(46,117,182,.18);box-shadow:0 0 0 1px rgba(46,117,182,.3)">⚙️</div>
       <div class="matiere-info">
         <div class="matiere-name" style="color:#7AADFF">Organisation de la Maintenance</div>
+        <div class="matiere-desc">Stratégies, coûts, fiabilité et méthodes de décision</div>
       </div>
       <div class="matiere-count" style="background:rgba(46,117,182,.15);color:#7AADFF">10 modules</div>
       <div class="chevron">▾</div>
@@ -81,6 +102,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(46,117,182,.15);color:#7AADFF">00</div>
         <div class="cours-info">
           <div class="cours-title">Définition de la maintenance</div>
+          <div class="cours-sub">Notions fondamentales · Terminologie · Normes</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
@@ -90,6 +112,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(0,201,167,.15);color:#5EECD8">01</div>
         <div class="cours-info">
           <div class="cours-title">Caractéristique d'un bien</div>
+          <div class="cours-sub">Fiabilité · Maintenabilité · Disponibilité</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
@@ -99,6 +122,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(255,92,0,.15);color:#FF8C44">02</div>
         <div class="cours-info">
           <div class="cours-title">Gestion des interventions</div>
+          <div class="cours-sub">GMAO · Ordres de travaux · Planification</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
@@ -108,18 +132,55 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(255,107,157,.15);color:#FF9DBF">03</div>
         <div class="cours-info">
           <div class="cours-title">Plan de maintenance</div>
+          <div class="cours-sub">Préventif · Systématique · Conditionnel</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
 
       <!-- 04 -->
-      <a class="cours-item" href="couts.html">
+      <div class="cours-item" onclick="toggleModule('mod04')" style="cursor:pointer;">
         <div class="cours-num" style="background:rgba(46,117,182,.15);color:#7AADFF">04</div>
         <div class="cours-info">
           <div class="cours-title">Coût de la maintenance</div>
+          <div class="cours-sub">Corrective · Préventive · Améliorative · Cdmc / Cdmp / Cdma</div>
         </div>
-        <div class="cours-arrow">→</div>
-      </a>
+        <div class="cours-arrow" id="arrow-mod04" style="transition:transform .3s;">▾</div>
+      </div>
+      <div id="mod04" style="display:none; border-bottom: 1px solid var(--border);">
+
+        <!-- 📁 Cours -->
+        <div class="dossier-wrap" id="dos-cours04">
+          <div class="dossier-head" onclick="toggleDossier('cours04')">
+            <div class="dossier-icon">📁</div>
+            <div class="dossier-label">Cours</div>
+            <div class="dossier-chevron">▶</div>
+          </div>
+          <div class="fichier-liste">
+            <a class="fichier-item" href="couts.html">
+              <div class="fichier-icon">📄</div>
+              <div class="fichier-title">Cours — Coûts de maintenance</div>
+              <div class="fichier-arrow">→</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 📁 Exemple -->
+        <div class="dossier-wrap" id="dos-exemple04">
+          <div class="dossier-head" onclick="toggleDossier('exemple04')">
+            <div class="dossier-icon">📁</div>
+            <div class="dossier-label">Exemple</div>
+            <div class="dossier-chevron">▶</div>
+          </div>
+          <div class="fichier-liste">
+            <a class="fichier-item" href="exemple-couts.html">
+              <div class="fichier-icon">📄</div>
+              <div class="fichier-title">Exemples — Coûts de maintenance</div>
+              <div class="fichier-arrow">→</div>
+            </a>
+          </div>
+        </div>
+
+      </div>
 
       <!-- 05 -->
       <div class="cours-item soon">
@@ -136,6 +197,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(0,201,167,.15);color:#5EECD8">06</div>
         <div class="cours-info">
           <div class="cours-title">Qualité</div>
+          <div class="cours-sub">Indicateurs · AMDEC · Démarche qualité</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
@@ -165,6 +227,7 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
         <div class="cours-num" style="background:rgba(255,183,3,.15);color:#FFD055">09</div>
         <div class="cours-info">
           <div class="cours-title">Logistique de la maintenance</div>
+          <div class="cours-sub">Pièces de rechange · Stock · LCC</div>
         </div>
         <div class="cours-arrow">→</div>
       </a>
@@ -229,6 +292,20 @@ body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: r
     const card = document.getElementById('card-' + id);
     card.classList.toggle('open');
   }
+
+  function toggleModule(id) {
+    const mod = document.getElementById(id);
+    const arrow = document.getElementById('arrow-' + id);
+    const isOpen = mod.style.display !== 'none';
+    mod.style.display = isOpen ? 'none' : 'block';
+    arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+  }
+
+  function toggleDossier(id) {
+    const wrap = document.getElementById('dos-' + id);
+    wrap.classList.toggle('open');
+  }
+
   document.getElementById('card-orga').classList.add('open');
 </script>
 </body>
